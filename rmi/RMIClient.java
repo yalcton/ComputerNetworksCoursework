@@ -23,7 +23,7 @@ public class RMIClient {
 			System.out.println("Needs 2 arguments: ServerHostName/IPAddress, TotalMessageCount");
 			System.exit(-1);
 		}
-
+		System.out.println(args[0]);
 		String urlServer = new String("rmi://" + args[0] + "/RMIServer");
 		int numMessages = Integer.parseInt(args[1]);
 
@@ -34,18 +34,21 @@ public class RMIClient {
     }
 
 		// TO-DO: Bind to RMIServer
-
 		String host = args[0];
 		try {
-					 Registry registry = LocateRegistry.getRegistry(host, 5005);
-					 //registry.bind(host, stub);
-		}
+				Registry registry = LocateRegistry.getRegistry(host, 5005);
+				RMIServerI server = (RMIServerI) registry.lookup(host);
 
 
 		// TO-DO: Attempt to send messages the specified number of times
 
+					for(int i =1; i <= numMessages; i++){
+						MessageInfo msg = new MessageInfo(numMessages, i);
+						server.receiveMessage(msg);
+					}
 
 
+	}
 		catch (Exception e) {
 				System.err.println("Client exception: " + e.toString());
 				e.printStackTrace();
