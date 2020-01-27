@@ -7,6 +7,9 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
 import common.MessageInfo;
 
 public class RMIClient {
@@ -26,9 +29,27 @@ public class RMIClient {
 
 		// TO-DO: Initialise Security Manager
 
+		if (System.getSecurityManager() == null) {
+        System.setSecurityManager(new SecurityManager());
+    }
+
 		// TO-DO: Bind to RMIServer
 
+		String host = args[0];
+		try {
+					 Registry registry = LocateRegistry.getRegistry(host, 5005);
+					 //registry.bind(host, stub);
+		}
+
+
 		// TO-DO: Attempt to send messages the specified number of times
+
+
+
+		catch (Exception e) {
+				System.err.println("Client exception: " + e.toString());
+				e.printStackTrace();
+		}
 
 	}
 }
