@@ -2,14 +2,14 @@
 Computer Networks CW
 
 
-###TODO
+#### TODO
 
-####UDP
+__UDP__
 
 - Test Functionality with UDP Client
 - Make UDP Server
 
-####RMI
+__RMI__
 
 - Make server for RMI
 - Test Functionality with RMI Client
