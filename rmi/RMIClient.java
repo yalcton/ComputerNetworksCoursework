@@ -34,7 +34,7 @@ public class RMIClient {
     }
 
 		// TO-DO: Bind to RMIServer
-		String host = args[0];
+		String host = "BORISSERVER";
 		try {
 				Registry registry = LocateRegistry.getRegistry(host, 5005);
 				RMIServerI server = (RMIServerI) registry.lookup(host);
