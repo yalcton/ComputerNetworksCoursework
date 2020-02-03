@@ -9,6 +9,7 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
+import java.time.LocalTime;
 
 import common.MessageInfo;
 
@@ -18,6 +19,10 @@ public class UDPServer {
 	private int totalMessages = -1;
 	private int[] receivedMessages;
 	private boolean close;
+	private boolean fmess = true;
+	private int delay = 30000;
+	private boolean first = true;
+	private String lastmess;
 
 	private void run() {
 		int				pacSize;
@@ -27,19 +32,20 @@ public class UDPServer {
 		// TO-DO: Receive the messages and process them by calling processMessage(...).
 		//        Use a timeout (e.g. 30 secs) to ensure the program doesn't block forever
 
-		int timeout = 30000;
-
 		while(!close){
 			pacSize = 5000;
 			pacData = new byte[5000];
-
 			pac = new DatagramPacket(pacData, pacSize);
 			try{
-				recvSoc.setSoTimeout(timeout);
+				recvSoc.setSoTimeout(delay);
 				recvSoc.receive(pac);
+				first = false;
 			}
 			catch (IOException e){
-				System.out.println("Error in running program");
+				System.out.println("Timeout!");
+				if(!first){
+					processMessage("-1");
+				}
 				System.exit(-1);
 			}
 
@@ -50,6 +56,25 @@ public class UDPServer {
 	}
 
 	public void processMessage(String data) {
+
+
+		if(data == "-1"){
+			String[] fields = lastmess.split(";");
+			int tot = Integer.parseInt(fields[0]);
+			double no = 0;
+			for (int i=1; i<=tot; i++){
+				if(receivedMessages[i] == 1){
+					no++;
+				}
+			}
+			double total = (no/tot)*100;
+			System.out.println("Percentage of Messages Recieved: "+total+"%");
+			close = true;
+			System.exit(-1);
+		}
+
+		lastmess = data;
+
 
 		MessageInfo msg = null;
 		System.out.println(data);
@@ -66,36 +91,30 @@ public class UDPServer {
 			System.out.println("IO Exception");
 		}
 		catch(Exception e){
-			System.out.println("Exception");
+			System.out.println("Exception somehow");
 		}
+
 		// TO-DO: On receipt of first message, initialise the receive buffer
 
-		if(receivedMessages == null){
-				totalMessages = msg.totalMessages;
-				receivedMessages = new int[totalMessages];
+		if(fmess){
+			receivedMessages = new int[msg.totalMessages+1];
+			fmess = false;
 		}
 
 		// TO-DO: Log receipt of the message
 		receivedMessages[msg.messageNum] = 1;
-
 		// TO-DO: If this is the last expected message, then identify
 		//        any missing messages
-		if(msg.messageNum == msg.totalMessages){
-			String lost = "Not recieved messages: ";
 
-			int no = 0;
-			for (int i=0; i<totalMessages; i++){
-				if(receivedMessages[i] != 1){
+		if(msg.totalMessages == msg.messageNum){
+			double no = 0;
+			for (int i=1; i<=msg.totalMessages; i++){
+				if(receivedMessages[i] == 1){
 					no++;
-					lost = lost + " " + (i+1) + ", ";
 				}
 			}
-
-			if (no == 0){
-				lost = lost + "NONE";
-			}
-
-			System.out.println(lost);
+			double total = (no/msg.totalMessages)*100;
+			System.out.println("Percentage of Messages Recieved: "+total+"%");
 			close = true;
 		}
 
