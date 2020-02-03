@@ -57,6 +57,7 @@ public class UDPServer {
 
 	public void processMessage(String data) {
 
+		String lost = "Messages Lost: ";
 
 		if(data == "-1"){
 			String[] fields = lastmess.split(";");
@@ -66,8 +67,13 @@ public class UDPServer {
 				if(receivedMessages[i] == 1){
 					no++;
 				}
+				else{
+					lost = lost+" "+i+"\n";
+				}
 			}
 			double total = (no/tot)*100;
+			System.out.println(lost);
+			System.out.println("Number of Messages Recived: "+no);
 			System.out.println("Percentage of Messages Recieved: "+total+"%");
 			close = true;
 			System.exit(-1);
@@ -77,7 +83,6 @@ public class UDPServer {
 
 
 		MessageInfo msg = null;
-		System.out.println(data);
 
 		// TO-DO: Use the data to construct a new MessageInfo object
 
@@ -112,8 +117,13 @@ public class UDPServer {
 				if(receivedMessages[i] == 1){
 					no++;
 				}
+				else{
+					lost = lost+" "+i+"\n";
+				}
 			}
 			double total = (no/msg.totalMessages)*100;
+			System.out.println(lost);
+			System.out.println("Number of Messages Recived: "+no);
 			System.out.println("Percentage of Messages Recieved: "+total+"%");
 			close = true;
 		}
