@@ -4,6 +4,7 @@
 package rmi;
 
 import java.net.MalformedURLException;
+import java.rmi.AlreadyBoundException;
 import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -32,34 +33,32 @@ public class RMIServer extends UnicastRemoteObject implements RMIServerI
 		if (totalMessages == -1)
 		{
 			totalMessages = msg.totalMessages;
-			receivedMessages = new int[totalMessages];
+			receivedMessages = new int[totalMessages+1];
 
-			for(int k=0; k < totalMessages; k++)
+			for(int k=1; k <= totalMessages; k++)
 			{
 				receivedMessages[k] = 0;  // setting all values in the array to 0 value.
 			}
-
 		}
 
 		// TO-DO: Log receipt of the message
 
-		receivedMessages[msg.messageNum - 1]++;
+		receivedMessages[msg.messageNum] = 1;
 
 		// TO-DO: If this is the last expected message, then identify
 		//        any missing messages
 
 		//we need to identify any messages that are still empty, i.e. still = 0.
 
-		for(int k = 0; k < totalMessages; k++)
-		{
-
+		for(int k = 0; k < totalMessages; k++){    //DEBUGGING!!!!
 				System.out.println("Message no. " + k + " is: " + receivedMessages[k]);
-			}
+		}
+
+
 
 		if (msg.messageNum == totalMessages)
 		{
-
-			for(int k = 0; k < totalMessages; k++)
+			for(int k = 1; k <= totalMessages; k++)
 			{
 				System.out.println("The missing message indexes are as follows: ");
 				if(receivedMessages[k] == 0)
@@ -75,27 +74,24 @@ public class RMIServer extends UnicastRemoteObject implements RMIServerI
 		public static void main(String[] args)
 		{
 
-			RMIServer rmis = null;
-
 			// TO-DO: Initialise Security Manager
 
-			if (System.getSecurityManager() == null)
-			{
+			if (System.getSecurityManager() == null){
 	        System.setSecurityManager(new SecurityManager());
 	    }
 
+			String name = "//boris/RMIServer";
+
 			try
 			{ 		// TO-DO: Instantiate the server class
-				 String name = "BORISSERVER";  //
-				 RMIServerI server = new RMIServer();
-				// RMIServerI stub = (RMIServerI) UnicastRemoteObject.exportObject(server, 0);
-				 Registry registry = LocateRegistry.getRegistry(); 		// TO-DO: Bind to RMI registry
-				// registry.rebind(name, stub);
-				 System.out.println("BORIS SERVER bound");
+				RMIServer rmis = new RMIServer();
+				 rebindServer("//146.169.52.16/RMIServer", rmis);
 			 } catch (Exception e) {
-					System.err.println("BORIS SERVER error:");
+					System.err.println("SERVER error:");
 					e.printStackTrace();
-				}
+			}
+			System.out.println("SERVER bound");
+
 
 		}
 
@@ -103,20 +99,16 @@ public class RMIServer extends UnicastRemoteObject implements RMIServerI
 	{
 
 			// TO-DO:
-			try {
-			Registry registry = LocateRegistry.getRegistry(5005);
-		  }catch(Exception e){
-  		System.out.println ("There is no registry for port 5005");
-			}
 
-			// Start / find the registry (hint use LocateRegistry.createRegistry(...)
-			// If we *know* the registry is running we could skip this (eg run rmiregistry in the start script)
+		try{
+				Registry registry = LocateRegistry.createRegistry(1099);
+				registry.rebind(serverURL, server);
+		}
+		catch (Exception e) {
+			 System.err.println("SERVER error:");
+			 e.printStackTrace();
+	 }
 
-			// TO-DO:
-//		 registry.rebind(serverURL, server);
-			// Now rebind the server to the registry (rebind replaces any existing servers bound to the serverURL)
-			// Note - Registry.rebind (as returned by createRegistry / getRegistry) does something similar but
-			// expects different things from the URL field.
 	}
 
 }
