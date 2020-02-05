@@ -28,86 +28,84 @@ public class RMIServer extends UnicastRemoteObject implements RMIServerI
 	public void receiveMessage(MessageInfo msg) throws RemoteException {
 
 		// TO-DO: On receipt of first message, initialise the receive buffer
-		// totalMessages is -1, which means we need to create our message buffer.
 
-		if (totalMessages == -1)
+		if(msg.messageNum == 0)
 		{
-			totalMessages = msg.totalMessages;
-			receivedMessages = new int[totalMessages+1];
-
-			for(int k=1; k <= totalMessages; k++)
-			{
-				receivedMessages[k] = 0;  // setting all values in the array to 0 value.
-			}
+			totalMessages = 0;
+			receivedMessages = new int[msg.totalMessages];
 		}
+		// make sure total messages incremented every time this is called.
+		totalMessages++;
 
-		// TO-DO: Log receipt of the message
-
+		// buffer the messages
 		receivedMessages[msg.messageNum] = 1;
+
+		// for(int k = 0; k < totalMessages; k++){    //DEBUGGING!!!!
+		// 		System.out.println("Message no. " + k + " is: " + receivedMessages[k]);
+		// }
+
 
 		// TO-DO: If this is the last expected message, then identify
 		//        any missing messages
 
-		//we need to identify any messages that are still empty, i.e. still = 0.
+		if(msg.messageNum == msg.totalMessages - 1) {
+					// for(int i = 0; i < totalMessages; ++i)
+					//  System.out.println("Receieved Message: " + Integer.toString(receivedMessages[i] + 1) + " out of " + Integer.toString(msg.totalMessages));
+					System.out.println("************************************");
+					System.out.println("Messages received: " + Integer.toString(totalMessages));
+					System.out.println("Total messages sent: " + Integer.toString(msg.totalMessages));
+					System.out.println("Success rate is: " + Double.toString((double)totalMessages / (double)msg.totalMessages * 100.0) + "%");
 
-		for(int k = 0; k < totalMessages; k++){    //DEBUGGING!!!!
-				System.out.println("Message no. " + k + " is: " + receivedMessages[k]);
-		}
-
-
-
-		if (msg.messageNum == totalMessages)
-		{
-			for(int k = 1; k <= totalMessages; k++)
-			{
-				System.out.println("The missing message indexes are as follows: ");
-				if(receivedMessages[k] == 0)
-				{
-					System.out.println("Message no. " + k);
+						// now identify any missing messages:
+					if(totalMessages != msg.totalMessages) {
+						System.out.println("************************************");
+						System.out.println("Messages lost: ");
+						for(int i = 0; i < msg.totalMessages; ++i)
+							if(receivedMessages[i] != 1)
+								System.out.println("Message " + Integer.toString(i) + " out of " + Integer.toString(msg.totalMessages));
+					}
+					totalMessages = -1;
 				}
-			}
-			totalMessages = -1;
-		}
+
 	}
 
 
 		public static void main(String[] args)
 		{
-
+			RMIServer rmis = null;
 			// TO-DO: Initialise Security Manager
 
 			if (System.getSecurityManager() == null){
 	        System.setSecurityManager(new SecurityManager());
 	    }
+			try {
+						// initialise rmiserver object
+						rmis = new RMIServer();
 
-			String name = "//boris/RMIServer";
+						// binding server to correct ip
+						rebindServer("//146.169.53.31/RMIServer", rmis);
 
-			try
-			{ 		// TO-DO: Instantiate the server class
-				RMIServer rmis = new RMIServer();
-				 rebindServer("//146.169.52.16/RMIServer", rmis);
-			 } catch (Exception e) {
-					System.err.println("SERVER error:");
-					e.printStackTrace();
-			}
-			System.out.println("SERVER bound");
-
-
+						System.out.println("RMIServer ready for bounding");
+					} catch(Exception e) {
+						System.err.println("RMIServer exception:");
+						e.printStackTrace();
+					}
 		}
 
 	protected static void rebindServer(String serverURL, RMIServer server)
 	{
+		try {
+			// create registry at specific registry port
+			LocateRegistry.createRegistry(1099);
 
-			// TO-DO:
+			// rebinding server to the server url
+			Naming.rebind(serverURL, server);
 
-		try{
-				Registry registry = LocateRegistry.createRegistry(1099);
-				registry.rebind(serverURL, server);
+			System.out.println("RMIServer has been bound");
+		} catch(Exception e) {
+			System.err.println("RMIRebindServer exception:");
+			e.printStackTrace();
 		}
-		catch (Exception e) {
-			 System.err.println("SERVER error:");
-			 e.printStackTrace();
-	 }
 
 	}
 

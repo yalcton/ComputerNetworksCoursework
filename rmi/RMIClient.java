@@ -7,7 +7,6 @@ import java.rmi.RMISecurityManager;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.RMISecurityManager;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -36,26 +35,23 @@ public class RMIClient {
 
 		// TO-DO: Bind to RMIServer
 		try {
-				rmis = (RMIServerI)Naming.lookup(urlServer);
-		}
-		catch (Exception e) {
-				System.err.println("Exception" + e.toString());
-				e.printStackTrace();
-				System.exit(-1);
+			rmis = (RMIServerI)Naming.lookup(urlServer);
+		} catch(Exception e) {
+			System.err.println("RMIClient binding exception:");
+			e.printStackTrace();
 		}
 
 		// TO-DO: Attempt to send messages the specified number of times
 
-		for(int i =1; i <= numMessages; i++){
-			MessageInfo msg = new MessageInfo(numMessages, i);
-			try{
-				rmis.receiveMessage(msg);
+		for(int i = 0; i < numMessages; i++)
+		{
+				MessageInfo msg = new MessageInfo(numMessages, i);
+				try {
+					rmis.receiveMessage(msg);
+				} catch(Exception e) {
+					System.err.println("RMIClient message exception:");
+					e.printStackTrace();
+				}
 			}
-			catch(Exception e){
-				System.err.println("oof");
-				e.printStackTrace();
-				System.exit(-1);
-			}
-		}
-	}
+}
 }
