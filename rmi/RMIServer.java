@@ -49,20 +49,16 @@ public class RMIServer extends UnicastRemoteObject implements RMIServerI
 		//        any missing messages
 
 		if(msg.messageNum == msg.totalMessages - 1) {
-					// for(int i = 0; i < totalMessages; ++i)
-					//  System.out.println("Receieved Message: " + Integer.toString(receivedMessages[i] + 1) + " out of " + Integer.toString(msg.totalMessages));
-					System.out.println("************************************");
 					System.out.println("Messages received: " + Integer.toString(totalMessages));
 					System.out.println("Total messages sent: " + Integer.toString(msg.totalMessages));
-					System.out.println("Success rate is: " + Double.toString((double)totalMessages / (double)msg.totalMessages * 100.0) + "%");
+					System.out.println("Percentage of Messages Received: " + Double.toString((double)totalMessages / (double)msg.totalMessages * 100.0) + "%");
 
 						// now identify any missing messages:
 					if(totalMessages != msg.totalMessages) {
-						System.out.println("************************************");
 						System.out.println("Messages lost: ");
 						for(int i = 0; i < msg.totalMessages; ++i)
 							if(receivedMessages[i] != 1)
-								System.out.println("Message " + Integer.toString(i) + " out of " + Integer.toString(msg.totalMessages));
+								System.out.println("Message index no. " + Integer.toString(i) + " out of total messages: " + Integer.toString(msg.totalMessages));
 					}
 					totalMessages = -1;
 				}
@@ -83,7 +79,7 @@ public class RMIServer extends UnicastRemoteObject implements RMIServerI
 						rmis = new RMIServer();
 
 						// binding server to correct ip
-						rebindServer("//146.169.53.31/RMIServer", rmis);
+						rebindServer("//127.0.0.1/RMIServer", rmis);  //during lab sessions we used 146.169.53.31 for the corona31 pc
 
 						System.out.println("RMIServer ready for bounding");
 					} catch(Exception e) {
