@@ -73,7 +73,7 @@ public class UDPServer {
 			}
 			double total = (no/tot)*100;
 			System.out.println(lost);
-			System.out.println("Number of Messages Recived: "+no);
+			System.out.println("Number of Messages Recieved: "+no);
 			System.out.println("Percentage of Messages Recieved: "+total+"%");
 			close = true;
 			System.exit(-1);
@@ -123,7 +123,7 @@ public class UDPServer {
 			}
 			double total = (no/msg.totalMessages)*100;
 			System.out.println(lost);
-			System.out.println("Number of Messages Recived: "+no);
+			System.out.println("Number of Messages Recieved: "+no);
 			System.out.println("Percentage of Messages Recieved: "+total+"%");
 			close = true;
 		}
